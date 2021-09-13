@@ -753,30 +753,6 @@ static dispatch_once_t onceToken;
 
   // Create an authentication session based on the OS version.
   id<MSACAuthenticationSession> session;
-#if TARGET_OS_MACCATALYST
-  // Catalyst has a min SDK of 13. By not referencing SFAuthenticationSession, we also avoid a deprecation warning.
-  ASWebAuthenticationSession *asSession = [[ASWebAuthenticationSession alloc] initWithURL:url
-                                                                        callbackURLScheme:callbackUrlScheme
-                                                                        completionHandler:authCompletionBlock];
-  if (usePresentationContext) {
-    asSession.presentationContextProvider = self;
-  }
-  session = asSession;
-#else
-  if (@available(iOS 12, *)) {
-    ASWebAuthenticationSession *asSession = [[ASWebAuthenticationSession alloc] initWithURL:url
-                                                                          callbackURLScheme:callbackUrlScheme
-                                                                          completionHandler:authCompletionBlock];
-    if (@available(iOS 13, *)) {
-      if (usePresentationContext) {
-        asSession.presentationContextProvider = self;
-      }
-    }
-    session = asSession;
-  } else {
-    session = [[SFAuthenticationSession alloc] initWithURL:url callbackURLScheme:callbackUrlScheme completionHandler:authCompletionBlock];
-  }
-#endif
 
   // Calling 'start' on an existing session crashes the application - cancel session.
   [self.authenticationSession cancel];
